@@ -1,3 +1,4 @@
+// app/blog/page.tsx
 import {
   getPostsPaginated,
   getAllAuthors,
@@ -39,18 +40,16 @@ export default async function Page({
     author?: string;
     tag?: string;
     category?: string;
-    page?: string;
     search?: string;
   }>;
 }) {
-  const params = await searchParams;
-  const { author, tag, category, page: pageParam, search } = params;
+  const searchParamsData = await searchParams;
+  const { author, tag, category, search } = searchParamsData;
 
-  // Handle pagination
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const page = 1;
   const postsPerPage = 9;
 
-  // Fetch data based on search parameters using efficient pagination
+  // دریافت داده‌ها
   const [postsResponse, authors, tags, categories] = await Promise.all([
     getPostsPaginated(page, postsPerPage, { author, tag, category, search }),
     search ? searchAuthors(search) : getAllAuthors(),
@@ -61,15 +60,18 @@ export default async function Page({
   const { data: posts, headers } = postsResponse;
   const { total, totalPages } = headers;
 
-  // Create pagination URL helper
+  // تابع ساخت لینک صفحه‌بندی به سبک وردپرس
   const createPaginationUrl = (newPage: number) => {
+    if (newPage === 1) return '/blog';
+    
     const params = new URLSearchParams();
-    if (newPage > 1) params.set("page", newPage.toString());
     if (category) params.set("category", category);
     if (author) params.set("author", author);
     if (tag) params.set("tag", tag);
     if (search) params.set("search", search);
-    return `/posts${params.toString() ? `?${params.toString()}` : ""}`;
+    
+    const queryString = params.toString();
+    return `/blog/page/${newPage}${queryString ? `?${queryString}` : ''}`;
   };
 
   return (
@@ -77,10 +79,10 @@ export default async function Page({
       <Container>
         <div className="space-y-8">
           <Prose>
-            <h2>All Posts</h2>
+            <h2>همه نوشته‌ها</h2>
             <p className="text-muted-foreground">
-              {total} {total === 1 ? "post" : "posts"} found
-              {search && " matching your search"}
+              {total} {total === 1 ? "نوشته" : "نوشته"} یافت شد
+              {search && " مطابق با جستجوی شما"}
             </p>
           </Prose>
 
@@ -105,7 +107,7 @@ export default async function Page({
             </div>
           ) : (
             <div className="h-24 w-full border rounded-lg bg-accent/25 flex items-center justify-center">
-              <p>No posts found</p>
+              <p>هیچ نوشته‌ای یافت نشد</p>
             </div>
           )}
 
@@ -123,7 +125,6 @@ export default async function Page({
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((pageNum) => {
-                      // Show current page, first page, last page, and 2 pages around current
                       return (
                         pageNum === 1 ||
                         pageNum === totalPages ||
