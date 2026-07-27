@@ -1,0 +1,17 @@
+@font-face {
+    font-family: 'shabnam';
+    font-display:swap;
+    src: url('../fonts/Shabnam.eot'); /* IE9 Compat Modes */
+    src: url('webfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+            url('../fonts/Shabnam.woff2') format('woff2'), /* Super Modern Browsers */
+            url('../fonts/Shabnam.woff') format('woff'), /* Pretty Modern Browsers */
+            url('../fonts/Shabnam.ttf') format('truetype'); /* Safari, Android, iOS */
+  }
+.font-shabnam{
+    font-family: 'shabnam', Tahoma, Geneva, Verdana, sans-serif;
+}
+.hero{
+    background-image: url('https://www.alocarton.com/wp-content/uploads/2021/06/hero-1.webp');
+          background-repeat: no-repeat;
+          background-size: cover;
+}

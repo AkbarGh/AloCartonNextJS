@@ -1,57 +1,81 @@
-import { Button } from "@/components/ui/button";
-import { MobileNav } from "@/components/nav/mobile-nav";
-import { mainMenu } from "@/menu.config";
-import { siteConfig } from "@/site.config";
-import { cn } from "@/lib/utils";
-import Logo from "@/public/logo.svg";
-import Image from "next/image";
+"use client"; // برای استفاده از state و useEffect
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { siteConfig } from "@/site.config";
+import { mainMenu } from "@/menu.config";
+import Logo from "@/public/logo.svg";
 
-interface NavProps {
-  className?: string;
-  children?: React.ReactNode;
-  id?: string;
-}
+export default function Nav() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-export function Nav({ className, children, id }: NavProps) {
+  // برای تشخیص اسکرول و تغییر استایل نوار
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav
-      className={cn("sticky z-50 top-0 bg-background", "border-b", className)}
-      id={id}
-    >
-      <div
-        id="nav-container"
-        className="max-w-5xl mx-auto py-4 px-6 sm:px-8 flex justify-between items-center"
-      >
-        <Link
-          className="hover:opacity-75 transition-all flex gap-4 items-center"
-          href="/"
-        >
+    <nav className={`navbar navbar-expand-lg fixed-top ${isScrolled ? 'navbar-light bg-white shadow-sm' : 'navbar-dark bg-transparent'}`}>
+      <div className="container">
+        {/* لوگو و نام سایت */}
+        <Link className="navbar-brand d-flex align-items-center gap-2" href="/">
           <Image
             src={Logo}
-            alt="Logo"
-            loading="eager"
-            className="dark:invert"
+            alt="لوگو"
             width={42}
-            height={26.44}
+            height={26}
+            className={isScrolled ? '' : 'filter brightness-0 invert'}
           />
-          <h2 className="text-sm">{siteConfig.site_name}</h2>
+          <span className={isScrolled ? 'text-dark' : 'text-white'}>
+            {siteConfig.site_name}
+          </span>
         </Link>
-        {children}
-        <div className="flex items-center gap-2">
-          <div className="mx-2 hidden md:flex">
+
+        {/* دکمه همبرگر برای موبایل */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-controls="navbarNav"
+          aria-expanded={isOpen}
+          aria-label="تغییر ناوبری"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        {/* منوی اصلی */}
+        <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNav">
+          <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+            {/* آیتم‌های منو از فایل config */}
             {Object.entries(mainMenu).map(([key, href]) => (
-              <Button key={href} asChild variant="ghost" size="sm">
-                <Link href={href}>
+              <li className="nav-item" key={href}>
+                <Link 
+                  className={`nav-link ${isScrolled ? 'text-dark' : 'text-white'} ${href === '/' ? 'active' : ''}`} 
+                  href={href}
+                  onClick={() => setIsOpen(false)}
+                >
                   {key.charAt(0).toUpperCase() + key.slice(1)}
                 </Link>
-              </Button>
+              </li>
             ))}
-          </div>
-          <Button asChild className="hidden sm:flex">
-            <Link href="https://github.com/9d8dev/next-wp">Get Started</Link>
-          </Button>
-          <MobileNav />
+            
+            {/* دکمه ویژه (مثل Get Started) */}
+            <li className="nav-item">
+              <Link 
+                href="https://github.com/9d8dev/next-wp" 
+                className={`btn ${isScrolled ? 'btn-outline-primary' : 'btn-outline-light'} ms-2`}
+                target="_blank"
+              >
+                شروع کنید
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
